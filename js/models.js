@@ -37,6 +37,7 @@ class Story {
 class StoryList {
   constructor(stories) {
     this.stories = stories;
+    // this.favStories = this.getFavStories();
   }
 
   /** Generate a new StoryList. It:
@@ -65,6 +66,25 @@ class StoryList {
     // build an instance of our own class using the new array of stories
     return new StoryList(stories);
   }
+
+  // static async getFavStories() {
+  //   // Note presence of `static` keyword: this indicates that getStories is
+  //   //  **not** an instance method. Rather, it is a method that is called on the
+  //   //  class directly. Why doesn't it make sense for getStories to be an
+  //   //  instance method?
+
+  //   // query the /stories endpoint (no auth required)
+  //   const response = await axios({
+  //     url: `${BASE_URL}/stories`,
+  //     method: "GET",
+  //   });
+
+  //   // turn plain old story objects from API into instances of Story class
+  //   const stories = response.data.stories.filter(story => currentUser.favorites.indexOf(story) !== -1);
+
+  //   // build an instance of our own class using the new array of stories
+  //   return new StoryList(stories);
+  // }
 
   /** Adds story data to API, makes a Story instance, adds it to story list.
    * - user - the current instance of User who will post the story
@@ -209,34 +229,31 @@ class User {
     console.log("adding favorite")
     const token = this.loginToken;
     const username = this.username;
-    console.log(token)
     const response = await axios({
       url: `https://hack-or-snooze-v3.herokuapp.com/users/${username}/favorites/${storyId}`,
       method: "POST",
       params: { token },
     })
-    let newFav = new Story({storyId})
-    this.favorites.push(newFav)
+    let newFavs = response.data.user.favorites;
+    this.favorites = newFavs.map(s => new Story(s));
     console.log(this.favorites)
+
   }
 
-    //Remove Favorite Stories
+    // //Remove Favorite Stories
     async deleteFavorite(storyId){
-      console.log("deleting favorite")
+    console.log("deleting favorite")
       const token = this.loginToken;
       const username = this.username;
-      console.log(token)
       const response = await axios({
         url: `https://hack-or-snooze-v3.herokuapp.com/users/${username}/favorites/${storyId}`,
         method: "DELETE",
         params: { token },
       })
-      for(let i = 0;i<this.favorites.length;i++){
-        if(fav[i].storyId === storyId){
-          this.favorites.splice(i, 1)
-          console.log("removing"+i)
-        }}
+      console.log(response)
+      let newFavs = response.data.user.favorites;
+      this.favorites = newFavs.map(s => new Story(s));
       console.log(this.favorites)
-    }
+        }
   
 }

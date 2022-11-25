@@ -42,3 +42,11 @@ function addStoryClick(evt) {
 }
 
 $navSubmit.on("click", addStoryClick);
+
+
+function showFavs(evt) {
+  hidePageComponents();
+  $favsList.show();
+}
+
+$favButton.on("click", showFavs);

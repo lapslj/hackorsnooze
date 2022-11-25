@@ -23,9 +23,13 @@ function generateStoryMarkup(story) {
   // console.debug("generateStoryMarkup", story);
 
   const hostName = story.getHostName();
+  //see if this story is a Favorite
+  // const favIcon = "&#10084;&#65039;"
+  const favIcon = "&hearts;"
+
   return $(`
       <li id="${story.storyId}">
-        <a href="#" id="favButton"> &hearts; </a>
+        <a href="#" id="favButton"> ${favIcon} </a>
         <a href="${story.url}" target="a_blank" class="story-link">
           ${story.title}
         </a>
@@ -42,16 +46,21 @@ function putStoriesOnPage() {
   console.debug("putStoriesOnPage");
 
   $allStoriesList.empty();
+  $favsList.empty();
 
   // loop through all of our stories and generate HTML for them
   for (let story of storyList.stories) {
     const $story = generateStoryMarkup(story);
     //add favorite when clicking fav button
     $story.children("#favButton").on("click",favClicker)
+    // let favIcon = checkFavorites(story.storyId)
+    // $story.children("#favButton").text(favIcon)
   $allStoriesList.append($story);
   $allStoriesList.show();
 }
 }
+
+
 
 async function submitStory(evt){
   // console.debug("submitStory");
@@ -82,19 +91,30 @@ async function submitStory(evt){
 
 function favClicker(e){
   //TODO: check and see if this story is in the "favorites" list. if not, add. if yes, remove.
+  e.target.innerHTML = "&#10084;&#65039;"
   const targ = e.target.parentElement
   const thisStoryId = targ.getAttribute("id")
   console.log(thisStoryId)
   for(let fav of currentUser.favorites){
+    console.log(fav.storyId)
     if(fav.storyId === thisStoryId){
+      e.target.innerHTML = "&#10060;"
       currentUser.deleteFavorite(thisStoryId)
-    }
-    else{
-      currentUser.addFavorite(thisStoryId)
-    }
-  }
+      return
+    }}
+  e.target.innerHTML = "&#10084;&#65039;"
+  currentUser.addFavorite(thisStoryId)
 }
 
+async function checkFavorites(thisStoryId){
+  let faVs = await currentUser.favorites
+  for(let fav of faVs){
+    if(fav.storyId === thisStoryId){
+      return "&#10084"
+    }
+    else{return "&hearts;"}
+  }
+}
 
 $storyForm.on("submit",submitStory)
 
