@@ -24,8 +24,7 @@ class Story {
   /** Parses hostname out of URL and returns it. */
 
   getHostName() {
-    // UNIMPLEMENTED: complete this function!
-    return "hostname.com";
+    return new URL(this.url).host;
   }
 }
 
@@ -239,6 +238,19 @@ class User {
     console.log(this.favorites)
 
   }
+
+  async delStory(storyId){
+    console.log("deleting story")
+    const token = this.loginToken;
+    const username = this.username;
+    const response = await axios({
+      url: `https://hack-or-snooze-v3.herokuapp.com/stories/${storyId}`,
+      method: "DELETE",
+      params: { token },
+    })
+
+  }
+
 
     // //Remove Favorite Stories
     async deleteFavorite(storyId){

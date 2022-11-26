@@ -8,8 +8,8 @@ let storyList;
 async function getAndShowStoriesOnStart() {
   storyList = await StoryList.getStories();
   $storiesLoadingMsg.remove();
-
   putStoriesOnPage();
+  fillFavs();
 }
 
 /**
@@ -30,6 +30,7 @@ function generateStoryMarkup(story) {
   return $(`
       <li id="${story.storyId}">
         <a href="#" id="favButton"> ${favIcon} </a>
+        <a href="#" id="delButton"> &#10006;&#65039; </a>
         <a href="${story.url}" target="a_blank" class="story-link">
           ${story.title}
         </a>
@@ -46,19 +47,39 @@ function putStoriesOnPage() {
   console.debug("putStoriesOnPage");
 
   $allStoriesList.empty();
-  $favsList.empty();
 
   // loop through all of our stories and generate HTML for them
   for (let story of storyList.stories) {
     const $story = generateStoryMarkup(story);
     //add favorite when clicking fav button
     $story.children("#favButton").on("click",favClicker)
+    $story.children("#delButton").on("click",delClicker)
     // let favIcon = checkFavorites(story.storyId)
     // $story.children("#favButton").text(favIcon)
   $allStoriesList.append($story);
   $allStoriesList.show();
 }
 }
+
+function fillFavs() {
+  console.debug("fillFavs");
+    $favsList.empty();
+
+    const favList = currentUser.favorites
+    console.log(favList)
+  // loop through all of our stories and generate HTML for them
+  for (let story of favList) {
+    console.log(story.storyId+"is in the favs!")
+    const $story = generateStoryMarkup(story);
+    //add favorite when clicking fav button
+    $story.children("#favButton").on("click",favClicker)
+    // let favIcon = checkFavorites(story.storyId)
+    // $story.children("#favButton").text(favIcon)
+  $favsList.append($story);
+  // $favsList.show();
+}
+}
+
 
 
 
@@ -80,8 +101,10 @@ async function submitStory(evt){
   // const $story = generateStoryMarkup(story);
   // $allStoriesList.prepend($story);
   const newStory = await storyList.addStory(currentUser, {title,url,author});
-  const $story = generateStoryMarkup(newStory);
-  $allStoriesList.prepend($story);
+  console.log("the add has worked")
+  // const $story = generateStoryMarkup(newStory);
+  // console.log($story)
+  $allStoriesList.prepend(generateStoryMarkup(newStory));
   //   {title: thTitle, author: thAuth, url: thUrl});
   // //  {title: thTitle, title: thAuth, title: thUrl});
   //   // {title: $storyTitle.val(), author: $storyAuthor.val(), url: $storyUrl.val()});
@@ -90,21 +113,32 @@ async function submitStory(evt){
 }
 
 function favClicker(e){
-  //TODO: check and see if this story is in the "favorites" list. if not, add. if yes, remove.
-  e.target.innerHTML = "&#10084;&#65039;"
+  // e.target.innerHTML = "&#10084;&#65039;"
   const targ = e.target.parentElement
   const thisStoryId = targ.getAttribute("id")
   console.log(thisStoryId)
   for(let fav of currentUser.favorites){
     console.log(fav.storyId)
     if(fav.storyId === thisStoryId){
-      e.target.innerHTML = "&#10060;"
+      e.target.innerHTML = "&hearts;;" //set to gray heart
       currentUser.deleteFavorite(thisStoryId)
+      fillFavs()
       return
     }}
   e.target.innerHTML = "&#10084;&#65039;"
   currentUser.addFavorite(thisStoryId)
+  fillFavs()
 }
+
+function delClicker(e){
+  const targ = e.target.parentElement
+  const thisStoryId = targ.getAttribute("id")
+  currentUser.delStory(thisStoryId)
+  targ.remove();
+}
+
+
+
 
 async function checkFavorites(thisStoryId){
   let faVs = await currentUser.favorites

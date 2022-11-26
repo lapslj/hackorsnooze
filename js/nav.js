@@ -9,7 +9,8 @@
 function navAllStories(evt) {
   console.debug("navAllStories", evt);
   hidePageComponents();
-  putStoriesOnPage();
+  // location.reload();
+  getAndShowStoriesOnStart();
 }
 
 $body.on("click", "#nav-all", navAllStories);
@@ -45,6 +46,8 @@ $navSubmit.on("click", addStoryClick);
 
 
 function showFavs(evt) {
+  // location.reload();
+  fillFavs();
   hidePageComponents();
   $favsList.show();
 }
